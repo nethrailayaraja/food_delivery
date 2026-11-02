@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodie - Sign Up</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff3e6;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-box {
+            background: white;
+            padding: 30px;
+            width: 320px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px #00000020;
+        }
+
+        h1 {
+            color: #ff6b00;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 12px;
+            background: #ff6b00;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #e65c00;
+        }
+
+        .message {
+            color: #c62828;
+            margin-top: 12px;
+            text-align: left;
+        }
+
+        a {
+            color: #ff6b00;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-box">
+        <h1>🍔 Foodie</h1>
+        <p>Create your customer account</p>
+
+        {% if error %}
+            <div class="message">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required
+            >
+
+            <label for="email">Email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+            >
+
+            <label for="password1">Password</label>
+            <input
+                type="password"
+                id="password1"
+                name="password1"
+                required
+            >
+
+            <label for="password2">Confirm Password</label>
+            <input
+                type="password"
+                id="password2"
+                name="password2"
+                required
+            >
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+</body>
+</html>

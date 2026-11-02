@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Orders - Foodie</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #FFF7ED;
+            color: #292524;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 6%;
+            background: white;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            color: #EA580C;
+            font-size: 27px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+        }
+
+        .nav-links a {
+            color: #44403C;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            color: #EA580C;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #EA580C;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #78716C;
+            margin-bottom: 30px;
+        }
+
+        /* Order Card */
+        .order-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid #E7E5E4;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-size: 20px;
+            font-weight: bold;
+            color: #EA580C;
+        }
+
+        /* Order Status */
+        .status {
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .preparing {
+            background: #DBEAFE;
+            color: #1D4ED8;
+        }
+
+        .out-for-delivery {
+            background: #F3E8FF;
+            color: #7E22CE;
+        }
+
+        .delivered {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .cancelled {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+
+        .order-card p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        /* Ordered Items */
+        .items {
+            background: #FFF7ED;
+            padding: 14px;
+            border-radius: 10px;
+            white-space: pre-line;
+            margin-top: 8px;
+        }
+
+        .total {
+            font-size: 19px;
+            font-weight: bold;
+            color: #EA580C;
+            margin-top: 15px !important;
+        }
+
+        /* Cancel Order Button */
+        .cancel-btn {
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover {
+            background: #B91C1C;
+        }
+
+        /* Empty Orders */
+        .empty-orders {
+            background: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .order-now-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 25px;
+            background: #EA580C;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .order-now-btn:hover {
+            background: #C2410C;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+
+        <a href="{% url 'home' %}" class="logo">
+            🍔 Foodie
+        </a>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}#menu">Menu</a>
+            <a href="{% url 'my_orders' %}">My Orders</a>
+        </div>
+
+    </nav>
+
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <h1>📋 My Orders</h1>
+
+        <p class="subtitle">
+            View all your previous food orders here.
+        </p>
+
+
+        {% if orders %}
+
+            {% for order in orders %}
+
+                <div class="order-card">
+
+                    <!-- Order Header -->
+                    <div class="order-header">
+
+                        <span class="order-id">
+                            Order #{{ order.id }}
+                        </span>
+
+                        <!-- Dynamic Status Color -->
+                        <span class="status {{ order.status|slugify }}">
+                            {{ order.status }}
+                        </span>
+
+                    </div>
+
+
+                    <!-- Order Details -->
+                    <p>
+                        <strong>Order Date:</strong>
+                        {{ order.created_at|date:"d M Y, h:i A" }}
+                    </p>
+
+                    <p>
+                        <strong>Delivery Address:</strong>
+                        {{ order.address }}
+                    </p>
+
+                    <p>
+                        <strong>Payment Method:</strong>
+                        {{ order.payment_method }}
+                    </p>
+
+                    <p>
+                        <strong>Items Ordered:</strong>
+                    </p>
+
+                    <div class="items">
+                        {{ order.items }}
+                    </div>
+
+                    <p class="total">
+                        Total Amount: ₹{{ order.total_amount }}
+                    </p>
+
+
+                    <!-- Cancel Order Button -->
+                    {% if order.status == "Pending" or order.status == "Preparing" %}
+
+                        <form method="POST"
+                              action="{% url 'cancel_order' order.id %}"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?');">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="cancel-btn">
+                                ❌ Cancel Order
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <!-- No Orders Message -->
+            <div class="empty-orders">
+
+                <h2>🍔 No Orders Yet!</h2>
+
+                <p>
+                    You haven't placed any orders yet.
+                    Explore our delicious menu and place your first order!
+                </p>
+
+                <a href="{% url 'home' %}#menu"
+                   class="order-now-btn">
+                    Order Now
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+</html>

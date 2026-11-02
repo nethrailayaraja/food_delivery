@@ -1,0 +1,23 @@
+
+# Virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Django local database
+db.sqlite3
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+# Saved browser/project files
+Django Food Delivery Project.html
+Django Food Delivery Project_files/

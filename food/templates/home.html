@@ -1,0 +1,772 @@
+
+{% load static %}
+{% load otp_webauthn %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Foodie | Online Food Delivery</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #FFF7ED;
+            color: #44403C;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 16px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: bold;
+            color: #EA580C;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #44403C;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            color: #EA580C;
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .logout-btn {
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #B91C1C;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 75px 20px;
+            background: linear-gradient(135deg, #FFEDD5, #FED7AA);
+        }
+
+        .hero h1 {
+            font-size: clamp(30px, 5vw, 46px);
+            color: #9A3412;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .explore-btn {
+            display: inline-block;
+            background: #EA580C;
+            color: white;
+            padding: 13px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .explore-btn:hover {
+            background: #C2410C;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            max-width: 700px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .profile-section h2 {
+            text-align: center;
+            color: #EA580C;
+            margin-bottom: 20px;
+        }
+
+        .profile-card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            overflow-wrap: anywhere;
+        }
+
+        .profile-card p {
+            margin: 12px 0;
+        }
+
+        .edit-profile-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 11px 20px;
+            background: #EA580C;
+            color: white;
+            border-radius: 9px;
+            font-weight: bold;
+        }
+
+        /* Menu Section */
+        .section {
+            padding: 45px 6%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 30px;
+            color: #EA580C;
+            margin-bottom: 28px;
+        }
+
+        .category-title {
+            color: #9A3412;
+            font-size: 24px;
+            margin: 35px 0 18px;
+            border-left: 5px solid #EA580C;
+            padding-left: 12px;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 22px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+        }
+
+        .food-image {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .food-card h3 {
+            color: #9A3412;
+            margin-bottom: 8px;
+        }
+
+        .food-description {
+            color: #78716C;
+            min-height: 48px;
+        }
+
+        .food-price {
+            color: #EA580C;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0 15px;
+        }
+
+        .add-btn {
+            border: none;
+            background: #EA580C;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-btn:hover {
+            background: #C2410C;
+        }
+
+        /* Cart */
+        .cart-box {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        #cart-items {
+            list-style: none;
+            margin: 18px 0;
+        }
+
+        #cart-items li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #E7E5E4;
+        }
+
+        .remove-btn {
+            background: #FEE2E2;
+            color: #B91C1C;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            font-size: 22px;
+            color: #EA580C;
+            font-weight: bold;
+            margin: 18px 0;
+        }
+
+        .checkout-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            border: none;
+            background: #16A34A;
+            color: white;
+            padding: 13px;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .checkout-btn:hover {
+            background: #15803D;
+        }
+
+        .empty-cart {
+            color: #78716C;
+            padding: 10px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #431407;
+            color: white;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                justify-content: center;
+            }
+
+            .nav-links {
+                justify-content: center;
+                gap: 12px;
+            }
+
+            .hero {
+                padding: 50px 18px;
+            }
+
+            .food-image {
+                height: 180px;
+            }
+
+            #cart-items li {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="logo">🍔 Foodie</a>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="#menu">Menu</a>
+            <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'my_orders' %}">My Orders</a>
+
+                <form method="POST" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Welcome back, {{ user.username }}! 🍽️</h1>
+        <p>From delicious favorites to fresh and healthy meals — choose what you love!</p>
+        <a href="#menu" class="explore-btn">Explore Menu</a>
+    </section>
+
+    <section class="profile-section">
+        <h2>👤 My Profile</h2>
+
+        <div class="profile-card">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+            <p><strong>Account:</strong> Active</p>
+
+            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">
+                ✏️ Edit Profile
+            </a>
+        </div>
+    </section>
+
+    <!-- MENU -->
+    <section class="section" id="menu">
+        <h2 class="section-title">🍽️ Our Delicious Menu</h2>
+
+        <h3 class="category-title">🍔 Fast Food & Favorites</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/cheese_pizza.jpg' %}" alt="Cheese Pizza" class="food-image">
+                <h3>Cheese Pizza</h3>
+                <p class="food-description">Hot, cheesy and delicious.</p>
+                <p class="food-price">₹199</p>
+                <button type="button" class="add-btn" data-name="Cheese Pizza">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/chicken_burger.jpg' %}" alt="Chicken Burger" class="food-image">
+                <h3>Chicken Burger</h3>
+                <p class="food-description">Juicy burger with tasty fillings.</p>
+                <p class="food-price">₹149</p>
+                <button type="button" class="add-btn" data-name="Chicken Burger">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/french_fries.jpg' %}" alt="French Fries" class="food-image">
+                <h3>French Fries</h3>
+                <p class="food-description">Crispy golden potato fries.</p>
+                <p class="food-price">₹79</p>
+                <button type="button" class="add-btn" data-name="French Fries">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/chicken_nuggets.jpg' %}" alt="Chicken Nuggets" class="food-image">
+                <h3>Chicken Nuggets</h3>
+                <p class="food-description">Crispy and tasty chicken bites.</p>
+                <p class="food-price">₹159</p>
+                <button type="button" class="add-btn" data-name="Chicken Nuggets">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🍛 Indian Main Course</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/chicken_biryani.jpg' %}" alt="Chicken Biryani" class="food-image">
+                <h3>Chicken Biryani</h3>
+                <p class="food-description">Aromatic rice with flavorful chicken.</p>
+                <p class="food-price">₹249</p>
+                <button type="button" class="add-btn" data-name="Chicken Biryani">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/veg_biryani.jpg' %}" alt="Veg Biryani" class="food-image">
+                <h3>Veg Biryani</h3>
+                <p class="food-description">Fragrant rice with fresh vegetables.</p>
+                <p class="food-price">₹179</p>
+                <button type="button" class="add-btn" data-name="Veg Biryani">Add to Cart</button>
+            </article>
+
+            <!-- UPDATED VEG FRIED RICE IMAGE -->
+            <article class="food-card">
+                <img src="{% static 'images/veg_fried_rice.jpg' %}" alt="Veg Fried Rice" class="food-image">
+                <h3>Veg Fried Rice</h3>
+                <p class="food-description">Fresh vegetables tossed with delicious rice.</p>
+                <p class="food-price">₹139</p>
+                <button type="button" class="add-btn" data-name="Veg Fried Rice">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/chicken_fried_rice.jpg' %}" alt="Chicken Fried Rice" class="food-image">
+                <h3>Chicken Fried Rice</h3>
+                <p class="food-description">Tasty fried rice with tender chicken.</p>
+                <p class="food-price">₹179</p>
+                <button type="button" class="add-btn" data-name="Chicken Fried Rice">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🥗 Healthy & Fresh Foods</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/veg_salad.jpg' %}" alt="Veg Salad" class="food-image">
+                <h3>Veg Salad</h3>
+                <p class="food-description">Fresh and colorful seasonal vegetables.</p>
+                <p class="food-price">₹99</p>
+                <button type="button" class="add-btn" data-name="Veg Salad">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/chicken_salad.jpg' %}" alt="Chicken Salad" class="food-image">
+                <h3>Chicken Salad</h3>
+                <p class="food-description">Fresh salad topped with grilled chicken.</p>
+                <p class="food-price">₹149</p>
+                <button type="button" class="add-btn" data-name="Chicken Salad">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/avocado_salad.jpg' %}" alt="Avocado Salad" class="food-image">
+                <h3>Avocado Salad</h3>
+                <p class="food-description">Creamy avocado with fresh vegetables.</p>
+                <p class="food-price">₹179</p>
+                <button type="button" class="add-btn" data-name="Avocado Salad">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/vegetable_soup.jpg' %}" alt="Vegetable Soup" class="food-image">
+                <h3>Vegetable Soup</h3>
+                <p class="food-description">Warm and nutritious vegetable soup.</p>
+                <p class="food-price">₹89</p>
+                <button type="button" class="add-btn" data-name="Vegetable Soup">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/fruit_bowl.jpg' %}" alt="Fruit Bowl" class="food-image">
+                <h3>Fruit Bowl</h3>
+                <p class="food-description">A refreshing bowl of mixed fruits.</p>
+                <p class="food-price">₹129</p>
+                <button type="button" class="add-btn" data-name="Fruit Bowl">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/whole_wheat_sandwich.jpg' %}" alt="Whole Wheat Sandwich" class="food-image">
+                <h3>Whole Wheat Sandwich</h3>
+                <p class="food-description">A healthy sandwich made with whole wheat bread.</p>
+                <p class="food-price">₹119</p>
+                <button type="button" class="add-btn" data-name="Whole Wheat Sandwich">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🌶️ Chaat & Street Food</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/pani_puri.jpg' %}" alt="Pani Puri" class="food-image">
+                <h3>Pani Puri</h3>
+                <p class="food-description">Crispy puris filled with spicy tangy water.</p>
+                <p class="food-price">₹60</p>
+                <button type="button" class="add-btn" data-name="Pani Puri">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/samosa_chaat.jpg' %}" alt="Samosa Chaat" class="food-image">
+                <h3>Samosa Chaat</h3>
+                <p class="food-description">Crunchy samosa topped with tasty chaat.</p>
+                <p class="food-price">₹80</p>
+                <button type="button" class="add-btn" data-name="Samosa Chaat">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/bhel_puri.jpg' %}" alt="Bhel Puri" class="food-image">
+                <h3>Bhel Puri</h3>
+                <p class="food-description">A crunchy and tangy Indian snack.</p>
+                <p class="food-price">₹70</p>
+                <button type="button" class="add-btn" data-name="Bhel Puri">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/pav_bhaji.jpg' %}" alt="Pav Bhaji" class="food-image">
+                <h3>Pav Bhaji</h3>
+                <p class="food-description">Spiced vegetable curry served with soft pav.</p>
+                <p class="food-price">₹120</p>
+                <button type="button" class="add-btn" data-name="Pav Bhaji">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/dahi_puri.jpg' %}" alt="Dahi Puri" class="food-image">
+                <h3>Dahi Puri</h3>
+                <p class="food-description">Crispy puris with yogurt and tasty spices.</p>
+                <p class="food-price">₹80</p>
+                <button type="button" class="add-btn" data-name="Dahi Puri">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🍜 Pasta & Noodles</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/veg_noodles.jpg' %}" alt="Veg Noodles" class="food-image">
+                <h3>Veg Noodles</h3>
+                <p class="food-description">Delicious noodles tossed with fresh vegetables.</p>
+                <p class="food-price">₹129</p>
+                <button type="button" class="add-btn" data-name="Veg Noodles">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/chicken_noodles.jpg' %}" alt="Chicken Noodles" class="food-image">
+                <h3>Chicken Noodles</h3>
+                <p class="food-description">Flavorful noodles with tender chicken pieces.</p>
+                <p class="food-price">₹169</p>
+                <button type="button" class="add-btn" data-name="Chicken Noodles">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/white_sauce_pasta.jpg' %}" alt="White Sauce Pasta" class="food-image">
+                <h3>White Sauce Pasta</h3>
+                <p class="food-description">Creamy pasta with a rich white sauce.</p>
+                <p class="food-price">₹159</p>
+                <button type="button" class="add-btn" data-name="White Sauce Pasta">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/red_sauce_pasta.jpg' %}" alt="Red Sauce Pasta" class="food-image">
+                <h3>Red Sauce Pasta</h3>
+                <p class="food-description">Delicious pasta in a rich tomato sauce.</p>
+                <p class="food-price">₹149</p>
+                <button type="button" class="add-btn" data-name="Red Sauce Pasta">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🍰 Desserts & Drinks</h3>
+        <div class="food-grid">
+
+            <!-- UPDATED CHOCOLATE CAKE IMAGE -->
+            <article class="food-card">
+                <img src="{% static 'images/chocolate_cake.jpg' %}" alt="Chocolate Cake" class="food-image">
+                <h3>Chocolate Cake</h3>
+                <p class="food-description">A rich and delicious chocolate treat.</p>
+                <p class="food-price">₹99</p>
+                <button type="button" class="add-btn" data-name="Chocolate Cake">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/brownie.jpg' %}" alt="Brownie" class="food-image">
+                <h3>Brownie</h3>
+                <p class="food-description">Soft, rich and chocolatey brownie.</p>
+                <p class="food-price">₹109</p>
+                <button type="button" class="add-btn" data-name="Brownie">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/ice_cream.jpg' %}" alt="Ice Cream" class="food-image">
+                <h3>Ice Cream</h3>
+                <p class="food-description">A cool and creamy sweet dessert.</p>
+                <p class="food-price">₹79</p>
+                <button type="button" class="add-btn" data-name="Ice Cream">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/fresh_lime_soda.jpg' %}" alt="Fresh Lime Soda" class="food-image">
+                <h3>Fresh Lime Soda</h3>
+                <p class="food-description">A refreshing and fizzy lime drink.</p>
+                <p class="food-price">₹69</p>
+                <button type="button" class="add-btn" data-name="Fresh Lime Soda">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/cold_coffee.jpg' %}" alt="Cold Coffee" class="food-image">
+                <h3>Cold Coffee</h3>
+                <p class="food-description">A chilled and refreshing coffee drink.</p>
+                <p class="food-price">₹99</p>
+                <button type="button" class="add-btn" data-name="Cold Coffee">Add to Cart</button>
+            </article>
+        </div>
+
+        <h3 class="category-title">🍹 Healthy Drinks</h3>
+        <div class="food-grid">
+            <article class="food-card">
+                <img src="{% static 'images/orange_juice.jpg' %}" alt="Fresh Orange Juice" class="food-image">
+                <h3>Fresh Orange Juice</h3>
+                <p class="food-description">Fresh and refreshing orange juice.</p>
+                <p class="food-price">₹99</p>
+                <button type="button" class="add-btn" data-name="Fresh Orange Juice">Add to Cart</button>
+            </article>
+
+            <article class="food-card">
+                <img src="{% static 'images/fruit_smoothie.jpg' %}" alt="Mixed Fruit Smoothie" class="food-image">
+                <h3>Mixed Fruit Smoothie</h3>
+                <p class="food-description">A creamy smoothie made with mixed fruits.</p>
+                <p class="food-price">₹129</p>
+                <button type="button" class="add-btn" data-name="Mixed Fruit Smoothie">Add to Cart</button>
+            </article>
+        </div>
+    </section>
+
+    <!-- CART -->
+    <section class="section" id="cart">
+        <h2 class="section-title">🛒 Your Cart</h2>
+
+        <div class="cart-box">
+            <p id="empty-message" class="empty-cart">
+                Your cart is empty. Add something delicious!
+            </p>
+
+            <ul id="cart-items"></ul>
+
+            <p class="cart-total">
+                Total: ₹<span id="cart-total">0</span>
+            </p>
+
+            <button type="button" id="checkout-button" class="checkout-btn">
+                Proceed to Checkout
+            </button>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Foodie — Delicious food, healthy choices, happy moments! ❤️</p>
+    </footer>
+
+    <script>
+        const FOOD_PRICES = {
+            "Cheese Pizza": 199,
+            "Chicken Burger": 149,
+            "French Fries": 79,
+            "Chicken Nuggets": 159,
+            "Chicken Biryani": 249,
+            "Veg Biryani": 179,
+            "Veg Fried Rice": 139,
+            "Chicken Fried Rice": 179,
+            "Veg Salad": 99,
+            "Chicken Salad": 149,
+            "Avocado Salad": 179,
+            "Vegetable Soup": 89,
+            "Fruit Bowl": 129,
+            "Whole Wheat Sandwich": 119,
+            "Pani Puri": 60,
+            "Samosa Chaat": 80,
+            "Bhel Puri": 70,
+            "Pav Bhaji": 120,
+            "Dahi Puri": 80,
+            "Veg Noodles": 129,
+            "Chicken Noodles": 169,
+            "White Sauce Pasta": 159,
+            "Red Sauce Pasta": 149,
+            "Chocolate Cake": 99,
+            "Brownie": 109,
+            "Ice Cream": 79,
+            "Fresh Lime Soda": 69,
+            "Cold Coffee": 99,
+            "Fresh Orange Juice": 99,
+            "Mixed Fruit Smoothie": 129
+        };
+
+        let cart = [];
+
+        const cartItemsElement = document.getElementById("cart-items");
+        const cartCountElement = document.getElementById("cart-count");
+        const cartTotalElement = document.getElementById("cart-total");
+        const emptyMessage = document.getElementById("empty-message");
+
+        function renderCart() {
+            cartItemsElement.replaceChildren();
+
+            let total = 0;
+            let count = 0;
+
+            cart.forEach((item, index) => {
+                const itemPrice = FOOD_PRICES[item.name];
+
+                total += itemPrice;
+                count += 1;
+
+                const li = document.createElement("li");
+                const itemText = document.createElement("span");
+                itemText.textContent = `${item.name} - ₹${itemPrice}`;
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className = "remove-btn";
+                removeButton.textContent = "Remove";
+
+                removeButton.addEventListener("click", function () {
+                    cart.splice(index, 1);
+                    renderCart();
+                });
+
+                li.appendChild(itemText);
+                li.appendChild(removeButton);
+                cartItemsElement.appendChild(li);
+            });
+
+            cartCountElement.textContent = count;
+            cartTotalElement.textContent = total;
+            emptyMessage.style.display = count === 0 ? "block" : "none";
+        }
+
+        document.querySelectorAll(".add-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const name = this.dataset.name;
+                cart.push({ name: name });
+                renderCart();
+
+                document.getElementById("cart").scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            });
+        });
+
+        document.getElementById("checkout-button").addEventListener("click", function () {
+            if (cart.length === 0) {
+                alert("Your cart is empty! Please add food first.");
+                return;
+            }
+
+            const items = cart.map(item =>
+                `${item.name} - ₹${FOOD_PRICES[item.name]}`
+            );
+
+            sessionStorage.setItem("foodie_cart_items", items.join("\n"));
+
+            window.location.href = "{% url 'checkout' %}";
+        });
+
+        renderCart();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodie - Secure Checkout</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #FFF7ED;
+            font-family: Arial, sans-serif;
+            color: #292524;
+            margin: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 6%;
+            background: white;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            color: #EA580C;
+            font-size: 27px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+        }
+
+        .nav-links a {
+            color: #44403C;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .checkout-container {
+            max-width: 850px;
+            margin: 35px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #EA580C;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: clamp(28px, 5vw, 44px);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #78716C;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            margin-top: 28px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #E7E5E4;
+            font-size: 21px;
+        }
+
+        .order-summary,
+        .payment-box {
+            background: #FFF7ED;
+            padding: 18px;
+            border-radius: 14px;
+            margin-top: 18px;
+        }
+
+        .order-summary .section-title {
+            margin-top: 0;
+        }
+
+        #checkout-items p {
+            border-bottom: 1px solid #E7E5E4;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 19px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #D6D3D1;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: 2px solid #FDBA74;
+            border-color: #EA580C;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .payment-box p,
+        .notice {
+            color: #57534E;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .notice {
+            background: #FFF7ED;
+            border-radius: 10px;
+            padding: 13px;
+            margin-top: 20px;
+        }
+
+        .cart-btn {
+            display: block;
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            background: #EA580C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cart-btn:hover {
+            background: #C2410C;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: #EA580C;
+            text-decoration: none;
+        }
+
+        .error-message {
+            background: #FEE2E2;
+            color: #991B1B;
+            padding: 13px;
+            border-radius: 10px;
+            margin-top: 18px;
+        }
+
+        .success-message {
+            background: #DCFCE7;
+            color: #166534;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            .checkout-container {
+                margin: 18px 12px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="logo">🍔 Foodie</a>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}#menu">Menu</a>
+        </div>
+    </nav>
+
+    <main class="checkout-container">
+
+        <h1>Secure Checkout 🛒</h1>
+
+        <p class="subtitle">
+            Just a few details before your delicious food arrives!
+        </p>
+
+        {% if success %}
+
+            <div class="success-message">
+                <h2>🎉 Order Placed Successfully!</h2>
+                <p>Your order number is #{{ order.id }}.</p>
+                <p>Total amount: ₹{{ order.total_amount }}</p>
+                <p>Payment method: {{ order.payment_method }}</p>
+                <p>Thank you for ordering with Foodie!</p>
+
+                <a href="{% url 'home' %}" class="back-link">
+                    Continue Shopping
+                </a>
+            </div>
+
+        {% else %}
+
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <section class="order-summary">
+                <h2 class="section-title">🛍️ Your Order</h2>
+
+                <div id="checkout-items" aria-live="polite"></div>
+
+                <div class="total-row">
+                    <span>Total Amount</span>
+                    <span>₹<span id="checkout-total">0</span></span>
+                </div>
+            </section>
+
+            <form id="checkout-form" method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+
+                <input type="hidden" name="items" id="order-items">
+                <input type="hidden" name="total_amount" id="order-total">
+
+                <h2 class="section-title">👤 Delivery Details</h2>
+
+                <label for="customer_name">Full Name</label>
+                <input
+                    type="text"
+                    id="customer_name"
+                    name="customer_name"
+                    placeholder="Enter your full name"
+                    autocomplete="name"
+                    required
+                >
+
+                <label for="phone">Phone Number</label>
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="10-digit mobile number"
+                    pattern="[0-9]{10}"
+                    maxlength="10"
+                    inputmode="numeric"
+                    autocomplete="tel"
+                    required
+                >
+
+                <label for="address">Delivery Address</label>
+                <textarea
+                    id="address"
+                    name="address"
+                    rows="4"
+                    placeholder="House number, street, area, city, PIN code"
+                    autocomplete="street-address"
+                    required
+                ></textarea>
+
+                <h2 class="section-title">💳 Payment Method</h2>
+
+                <label for="payment">Choose how to pay</label>
+
+                <select id="payment" name="payment" required>
+                    <option value="COD">Cash on Delivery</option>
+                    <option value="UPI">UPI Payment (Demo)</option>
+                    <option value="CARD">Debit / Credit Card (Demo)</option>
+                </select>
+
+                <div id="upi-section" class="payment-box" hidden>
+                    <h3>📱 UPI Payment</h3>
+                    <p>Demo only. No real UPI payment is processed.</p>
+
+                    <label for="upi_id">Demo UPI ID</label>
+                    <input
+                        type="text"
+                        id="upi_id"
+                        name="upi_id"
+                        placeholder="example@upi"
+                        disabled
+                    >
+                </div>
+
+                <div id="card-section" class="payment-box" hidden>
+                    <h3>💳 Card Payment</h3>
+                    <p>
+                        Visual demo only. Do not enter real card details.
+                    </p>
+
+                    <label for="card_name">Name on Card</label>
+                    <input type="text" id="card_name" disabled>
+
+                    <label for="card_number">Demo Card Number</label>
+                    <input type="text" id="card_number" disabled>
+
+                    <label for="expiry">Expiry Date</label>
+                    <input type="text" id="expiry" disabled>
+
+                    <label for="cvv">CVV</label>
+                    <input type="password" id="cvv" disabled>
+                </div>
+
+                <div class="notice">
+                    <strong>Payment safety:</strong>
+                    UPI and card options are demonstrations only.
+                    No payment is processed. Choose Cash on Delivery
+                    to test your order.
+                </div>
+
+                <button type="submit" class="cart-btn">
+                    Place Order
+                </button>
+            </form>
+
+        {% endif %}
+
+        <a href="{% url 'home' %}" class="back-link">
+            ← Continue Shopping
+        </a>
+
+    </main>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* All menu items and their prices */
+        const prices = {
+            "Cheese Pizza": 199,
+            "Chicken Burger": 149,
+            "French Fries": 79,
+            "Chicken Nuggets": 159,
+            "Chicken Biryani": 249,
+            "Veg Biryani": 179,
+            "Veg Fried Rice": 139,
+            "Chicken Fried Rice": 179,
+            "Veg Salad": 99,
+            "Chicken Salad": 149,
+            "Avocado Salad": 179,
+            "Vegetable Soup": 89,
+            "Fruit Bowl": 129,
+            "Whole Wheat Sandwich": 119,
+            "Pani Puri": 60,
+            "Samosa Chaat": 80,
+            "Bhel Puri": 70,
+            "Pav Bhaji": 120,
+            "Dahi Puri": 80,
+            "Veg Noodles": 129,
+            "Chicken Noodles": 169,
+            "White Sauce Pasta": 159,
+            "Red Sauce Pasta": 149,
+            "Chocolate Cake": 99,
+            "Brownie": 109,
+            "Ice Cream": 79,
+            "Fresh Lime Soda": 69,
+            "Cold Coffee": 99,
+            "Fresh Orange Juice": 99,
+            "Mixed Fruit Smoothie": 129
+        };
+
+        const itemsContainer = document.getElementById("checkout-items");
+        const totalElement = document.getElementById("checkout-total");
+        const itemsInput = document.getElementById("order-items");
+        const totalInput = document.getElementById("order-total");
+        const form = document.getElementById("checkout-form");
+
+        let validLines = [];
+        let total = 0;
+
+        /* Load cart items saved by home.html */
+        if (form) {
+            const savedItems = sessionStorage.getItem("foodie_cart_items");
+
+            if (savedItems) {
+                savedItems.split("\n").forEach(function (line) {
+                    if (!line.trim()) return;
+
+                    const name = line.split(" - ₹")[0].trim();
+
+                    if (!Object.prototype.hasOwnProperty.call(prices, name)) {
+                        return;
+                    }
+
+                    const price = prices[name];
+                    total += price;
+                    validLines.push(name + " - ₹" + price);
+
+                    const item = document.createElement("p");
+                    item.textContent = name + " - ₹" + price;
+                    itemsContainer.appendChild(item);
+                });
+            }
+
+            if (validLines.length === 0) {
+                itemsContainer.textContent =
+                    "No cart details found. Please add food from the home page.";
+            }
+
+            totalElement.textContent = total;
+            itemsInput.value = validLines.join("\n");
+            totalInput.value = total;
+
+            form.addEventListener("submit", function (event) {
+                if (validLines.length === 0) {
+                    event.preventDefault();
+                    alert("Your cart is empty. Please add food from the home page.");
+                    return;
+                }
+
+                itemsInput.value = validLines.join("\n");
+                totalInput.value = total;
+            });
+        }
+
+        /* Show selected demo payment fields */
+        const payment = document.getElementById("payment");
+        const upiSection = document.getElementById("upi-section");
+        const cardSection = document.getElementById("card-section");
+        const upiInput = document.getElementById("upi_id");
+
+        const cardInputs = [
+            document.getElementById("card_name"),
+            document.getElementById("card_number"),
+            document.getElementById("expiry"),
+            document.getElementById("cvv")
+        ];
+
+        function updatePaymentFields() {
+            if (!payment) return;
+
+            const isUPI = payment.value === "UPI";
+            const isCard = payment.value === "CARD";
+
+            upiSection.hidden = !isUPI;
+            cardSection.hidden = !isCard;
+            upiInput.disabled = !isUPI;
+
+            cardInputs.forEach(function (input) {
+                input.disabled = !isCard;
+            });
+        }
+
+        if (payment) {
+            payment.addEventListener("change", updatePaymentFields);
+            updatePaymentFields();
+        }
+    });
+    </script>
+
+</body>
+</html>

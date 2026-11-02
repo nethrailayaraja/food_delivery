@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodie - Login</title>
+
+    {% load static %}
+    {% load otp_webauthn %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            background: #FFF7ED;
+            font-family: Arial, sans-serif;
+            color: #292524;
+        }
+
+        .login-container {
+            max-width: 420px;
+            margin: 60px auto;
+            padding: 35px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #EA580C;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #78716C;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            border: 1px solid #D6D3D1;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #EA580C;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            background: #EA580C;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #C2410C;
+        }
+
+        .message {
+            padding: 12px;
+            background: #FEE2E2;
+            color: #991B1B;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 22px;
+            color: #78716C;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #E7E5E4;
+        }
+
+        .passkey-button {
+            background: #292524;
+            margin-top: 15px;
+        }
+
+        .passkey-button:hover {
+            background: #44403C;
+        }
+
+        #passkey-verification-status-message {
+            margin-top: 12px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: #EA580C;
+            text-decoration: none;
+        }
+
+        @media (max-width: 500px) {
+            .login-container {
+                margin: 30px 16px;
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h2 class="logo">Foodie<span>.</span></h2>
+        <div class="nav-links">
+            <a href="/">Home</a>
+        </div>
+    </nav>
+
+    <main class="login-container">
+        <h1>Welcome Back! 🍔</h1>
+        <p class="subtitle">Log in to your Foodie account</p>
+
+        {% if error %}
+            <div class="message">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                autocomplete="username"
+                required
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit">Login with Username & Password</button>
+        </form>
+
+        <div class="divider">OR</div>
+
+        <span id="passkey-verification-placeholder"></span>
+
+        <template id="passkey-verification-available-template">
+            <button
+                type="button"
+                id="passkey-verification-button"
+                class="passkey-button"
+            >
+                Login using a Passkey 🔐
+            </button>
+            <div id="passkey-verification-status-message"></div>
+        </template>
+
+        <template id="passkey-verification-unavailable-template">
+            <p class="subtitle">
+                Passkeys are not supported by this browser.
+            </p>
+        </template>
+
+        {% render_otp_webauthn_auth_scripts username_field_selector="input[name='username']" %}
+
+        <a href="/" class="back-link">← Back to Home</a>
+    </main>
+</body>
+</html>
